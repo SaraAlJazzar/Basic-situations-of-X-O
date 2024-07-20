@@ -1,0 +1,163 @@
+# O learn from X's wins " File "
+import random
+
+# Function to update scores based on the current move
+def scores():
+    if randomn == 0:
+        if choose in [0, 1, 2]:
+            xsc[0] += 3
+        if choose in [3, 4, 5]:
+            xsc[1] += 3
+        if choose in [6, 7, 8]:
+            xsc[2] += 3
+        if choose in [0, 3, 6]:
+            xsc[3] += 3
+        if choose in [1, 4, 7]:
+            xsc[4] += 3
+        if choose in [2, 5, 8]:
+            xsc[5] += 3
+        if choose in [0, 4, 8]:
+            xsc[6] += 3
+        if choose in [2, 4, 6]:
+            xsc[7] += 3
+    else:
+        if choose in [0, 1, 2]:
+            osc[0] += 5
+        if choose in [3, 4, 5]:
+            osc[1] += 5
+        if choose in [6, 7, 8]:
+            osc[2] += 5
+        if choose in [0, 3, 6]:
+            osc[3] += 5
+        if choose in [1, 4, 7]:
+            osc[4] += 5
+        if choose in [2, 5, 8]:
+            osc[5] += 5
+        if choose in [0, 4, 8]:
+            osc[6] += 5
+        if choose in [2, 4, 6]:
+            osc[7] += 5
+
+# Function to print the board
+def print_board():
+    count = 0
+    for i in points:
+        count += 1
+        if count == 3 or count == 6:
+            print(" ", i, " |")
+            print("___________________")
+        else:
+            print(" ", i, " |", end="")
+    print()
+
+# Load learning data from file
+def load_learning_data():
+    learning_data = []
+    try:
+        with open("Win_Score.csv", "r") as file:
+            for line in file:
+                learning_data.append([int(x) for x in line.strip().split(",")[1:]])
+    except FileNotFoundError:
+        pass
+    return learning_data
+
+# Save learning data to file
+def save_learning_data(learning_data):
+    with open("Win_Score.csv", "w") as file:
+        for i, pattern in enumerate(learning_data):
+            file.write(f"{i}," + ",".join(map(str, pattern)) + "\n")
+
+# Main game loop
+learning_data = load_learning_data()
+restart = False
+while not restart:
+    randomn = random.randint(0, 1)  # randomly choose who to start the game
+
+    points = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    n = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    xsc = [0, 0, 0, 0, 0, 0, 0, 0]
+    osc = [0, 0, 0, 0, 0, 0, 0, 0]
+
+    for j in range(9):
+        print_board()
+        if randomn == 0:
+            print("X turn :")
+        else:
+            print("O turn :")
+        print(xsc)
+        print(osc)
+
+        if randomn == 0:
+            choose = int(input(f"enter your choice from {points}: "))
+        else:
+            # Learning mechanism: Check for previous winning patterns
+            blocked = False
+            for pattern in learning_data:
+                if points[pattern[0]] == "X" and points[pattern[1]] == "X" and isinstance(points[pattern[2]], int):
+                    choose = pattern[2]
+                    blocked = True
+                    print("O is blocking X's move based on learning!")
+                    break
+                if points[pattern[1]] == "X" and points[pattern[2]] == "X" and isinstance(points[pattern[0]], int):
+                    choose = pattern[0]
+                    blocked = True
+                    print("O is blocking X's move based on learning!")
+                    break
+                if points[pattern[2]] == "X" and points[pattern[0]] == "X" and isinstance(points[pattern[1]], int):
+                    choose = pattern[1]
+                    blocked = True
+                    print("O is blocking X's move based on learning!")
+                    break
+
+            if not blocked:
+                choose = random.choice(n)
+        if choose in n:
+         n.remove(choose)
+
+         scores()
+         if randomn == 0:
+            points[choose] = "X"
+            randomn = 1
+         else:
+            points[choose] = "O"
+            randomn = 0
+        else:
+            print("This place is already taken . Please try again.")
+        print(xsc)
+        print(osc)
+
+        if 9 in xsc:
+            print("X wins")
+
+            winning_indices = [i for i, val in enumerate(xsc) if val == 9  ]
+            if winning_indices not in learning_data :
+             for index in winning_indices:
+                if index == 0:
+                    learning_data.append([0, 1, 2])
+                if index == 1:
+                    learning_data.append([3, 4, 5])
+                if index == 2:
+                    learning_data.append([6, 7, 8])
+                if index == 3:
+                    learning_data.append([0, 3, 6])
+                if index == 4:
+                    learning_data.append([1, 4, 7])
+                if index == 5:
+                    learning_data.append([2, 5, 8])
+                if index == 6:
+                    learning_data.append([0, 4, 8])
+                if index == 7:
+                    learning_data.append([2, 4, 6])
+
+            save_learning_data(learning_data)
+            break
+        elif 15 in osc:
+            print("O wins")
+            break
+        elif 9 not in xsc and 15 not in osc:
+            print("draw")
+
+    print_board()
+    coun = input("if you want to continue the game, press Enter. Otherwise, type 'exit': ")
+    if coun.lower() == "exit":
+        restart = True
