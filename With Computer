@@ -69,19 +69,21 @@ while restart:
     elif randomn == 1:
       choose=random.choice(n)
 
+    if choose in n : 
+     n.remove(choose)
 
-    n.remove(choose)
-
-    scores()
-    if randomn == 0:
-     points[choose]="X"
-     randomn=1
-    elif randomn == 1:
-     points[choose]="O"
-     randomn=0
-    print(xsc)
-    print(osc)
-
+     scores()
+     if randomn == 0:
+      points[choose]="X"
+      randomn=1
+     elif randomn == 1:
+      points[choose]="O"
+      randomn=0
+      print(xsc)
+      print(osc)
+    else:
+      print("This place is already taken. Please try again.")
+      countinue
     if 9 in xsc :
       print("X win")
       break
